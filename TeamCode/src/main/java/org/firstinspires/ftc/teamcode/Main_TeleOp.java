@@ -83,42 +83,6 @@ public class Main_TeleOp extends LinearOpMode {
         double servoCurrentPosition;
 
         public void smoothMovement(){
-            float x=  gamepad1.left_stick_x;
-            float y= -gamepad1.left_stick_y;
-
-            if (directie==0) {
-                if (gamepad1.b) {
-
-                    directie = 1;
-                    sleep(500);
-                }
-            }
-            if(directie==1) {
-                if (gamepad1.b) {
-                    directie = 0;
-                    sleep(500);
-                }
-            }
-            telemetry.addData("Directie", directie);
-            if(gamepad1.right_bumper){
-                power=0.25;
-            }
-            else {
-                power=0.5;
-            }
-            if(gamepad1.left_stick_x>0){
-                frontLeftMotor.setPower(y*(power+gamepad1.right_stick_x/2));
-                frontRightMotor.setPower(((x+y)/2)*(power-gamepad1.right_stick_x/2));
-                backRightMotor.setPower(y*(power-gamepad1.right_stick_x/2));
-                backLeftMotor.setPower(((x+y)/2)*(power+gamepad1.right_stick_x/2));
-            }
-            else{
-                frontLeftMotor.setPower(((x+y)/2)*(power+gamepad1.right_stick_x/2));
-                frontRightMotor.setPower(y*(power-gamepad1.right_stick_x/2));
-                backRightMotor.setPower(((x+y)/2)*(power-gamepad1.right_stick_x/2));
-                backLeftMotor.setPower(y*(power+gamepad1.right_stick_x/2));
-            }
-            /*
             if(directie==0){
                 if(gamepad1.dpad_up){
                     frontLeftMotor.setPower(power+gamepad1.right_stick_x/2);
@@ -180,7 +144,7 @@ public class Main_TeleOp extends LinearOpMode {
                     backRightMotor.setPower(-gamepad1.right_stick_x/4);
                     backLeftMotor.setPower(gamepad1.right_stick_x/4);
                 }
-            } */
+            }
 
 
         }
