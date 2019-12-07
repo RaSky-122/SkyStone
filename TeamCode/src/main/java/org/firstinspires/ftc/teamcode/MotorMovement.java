@@ -13,7 +13,8 @@ public class MotorMovement extends LinearOpMode {
     private DcMotor frontLeftMotor;
     private DcMotor backRightMotor;
     private DcMotor backLeftMotor;
-    private DcMotor stoneArmMotor;
+
+    //private DcMotor stoneArmMotor;
 
     double power = 0.5;
     int directie = 0;
@@ -34,17 +35,32 @@ public class MotorMovement extends LinearOpMode {
         while(opModeIsActive()){
 
             motors.smoothMovement();
-            motors.stoneGrabber();
+            //motors.stoneGrabber();
 
-            telemetry.addData("Front Right: ", frontRightMotor.getPower());
-            telemetry.addData("Back Right: ", backRightMotor.getPower());
-            telemetry.addData("Front Left: ", frontLeftMotor.getPower());
-            telemetry.addData("Back Left: ", backLeftMotor.getPower());
+            telemetry.addData("Front Right: ", frontRightMotor.getCurrentPosition());
+            telemetry.addData("Back Right: ", backRightMotor.getCurrentPosition());
+            telemetry.addData("Front Left: ", frontLeftMotor.getCurrentPosition());
+            telemetry.addData("Back Left: ", backLeftMotor.getCurrentPosition());
             telemetry.update();
+
+            if(gamepad1.a)
+                new Init().resetEncoders();
         }
     }
 
     class Init {
+
+        public void resetEncoders(){
+            frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
 
         public void wheels() {
             frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
@@ -52,23 +68,22 @@ public class MotorMovement extends LinearOpMode {
             backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
             backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
 
-            stoneArmMotor = hardwareMap.dcMotor.get("stoneArmMotor");
-//////////////////////////////////////////////////////////////////////////////
+            //stoneArmMotor = hardwareMap.dcMotor.get("stoneArmMotor");
+            //////////////////////////////////////////////////////////////////////////////
 
             frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-            stoneArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-/////////////////////////////////////////////////////////////////////////////
+            //stoneArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            /////////////////////////////////////////////////////////////////////////////
 
-            frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            //stoneArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            stoneArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            /////////////////////////////////////////////////////////////////////////////
+
+            resetEncoders();
         }
 
     }
@@ -162,6 +177,7 @@ public class MotorMovement extends LinearOpMode {
 
         }
 
+        /**
         public void stoneGrabber(){
 
             if(gamepad2.dpad_right) {
@@ -179,5 +195,6 @@ public class MotorMovement extends LinearOpMode {
                 stoneArmMotor.setPower(-stoneArmPower);
             else stoneArmMotor.setPower(0);
         }
+         */
     }
 }
