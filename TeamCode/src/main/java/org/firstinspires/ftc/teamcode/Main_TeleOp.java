@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -15,8 +16,12 @@ public class Main_TeleOp extends LinearOpMode {
     private DcMotor backRightMotor;
     private DcMotor backLeftMotor;
     private DcMotor stoneArmMotor;
+    private DcMotor liftMotor;
+    private DcMotor collectLeft;
+    private DcMotor collectRight;
 
     private Servo stoneGrabServo;
+    private CRServo craneServo;
 
     Init init = new Init();
     Motors motors = new Motors();
@@ -63,13 +68,21 @@ public class Main_TeleOp extends LinearOpMode {
         public void stoneStuff(){
             stoneArmMotor = hardwareMap.dcMotor.get("stoneArmMotor");
             stoneGrabServo = hardwareMap.servo.get("stoneGrabServo");
+            liftMotor = hardwareMap.dcMotor.get("liftMotor");
+            craneServo = hardwareMap.crservo.get("craneServo");
+            collectLeft = hardwareMap.dcMotor.get("collectLeft");
+            collectRight = hardwareMap.dcMotor.get("collectRight");
 
             //////////////////////////////////////////////////////////////////////////////
 
             stoneArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            collectRight.setDirection(DcMotorSimple.Direction.FORWARD);
+            collectLeft.setDirection(DcMotorSimple.Direction.REVERSE);
             /////////////////////////////////////////////////////////////////////////////
 
             stoneArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
     }
@@ -151,20 +164,27 @@ public class Main_TeleOp extends LinearOpMode {
 
         public void stoneGrabber(){
 
-            if(gamepad2.dpad_right) {
+            if(gamepad2.right_bumper) {
                 stoneArmPower += 0.05;
                 sleep(200);
             }
-            else if(gamepad2.dpad_left) {
+            else if(gamepad2.left_bumper) {
                 stoneArmPower -= 0.05;
                 sleep(200);
             }
 
-            if(gamepad2.dpad_up)
+            if(gamepad2.dpad_up) {
                 stoneArmMotor.setPower(stoneArmPower);
-            else if(gamepad2.dpad_down)
+                liftMotor.setPower(stoneArmPower);
+            }
+            else if(gamepad2.dpad_down) {
                 stoneArmMotor.setPower(-stoneArmPower);
-            else stoneArmMotor.setPower(0);
+                liftMotor.setPower(-stoneArmPower);
+            }
+            else {
+                stoneArmMotor.setPower(0);
+                liftMotor.setPower(0);
+            }
         }
 
         public void stoneGrabberServo(){
@@ -178,6 +198,24 @@ public class Main_TeleOp extends LinearOpMode {
                 stoneGrabServo.setPosition(servoCurrentPosition - 0.01);
                 sleep(10);
             }
+        }
+        public void craneMovement(){
+            if(gamepad2.dpad_right)
+                craneServo.setPower(stoneArmPower);
+            else
+                if(gamepad2.dpad_left)
+                    craneServo.setPower(-stoneArmPower);
+        }
+        public void collector(){
+            if(gamepad2.x){
+                collectLeft.setPower(0.8);
+                collectRight.setPower(0.8);
+            }
+            else
+                if(gamepad2.b){
+                    collectRight.setPower(-0.8);
+                    collectLeft.setPower(-0.8 );
+                }
         }
     }
 
