@@ -22,6 +22,7 @@ public class Main_TeleOp extends LinearOpMode {
 
     private Servo stoneGrabServo;
     private CRServo craneServo;
+    private CRServo collectServo;
 
     Init init = new Init();
     Motors motors = new Motors();
@@ -37,9 +38,16 @@ public class Main_TeleOp extends LinearOpMode {
         }
 
         while(opModeIsActive()){
+
+            telemetry.addData("Stone arm motor: ", stoneArmMotor.getCurrentPosition());
+            telemetry.addData("Lift Motor: ", liftMotor.getCurrentPosition());
+            telemetry.update();
+
             motors.smoothMovement();
             motors.stoneGrabber();
             motors.stoneGrabberServo();
+            motors.collector();
+            motors.craneMovement();
         }
     }
     class Init {
@@ -63,6 +71,7 @@ public class Main_TeleOp extends LinearOpMode {
             backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         }
 
         public void stoneStuff(){
@@ -72,17 +81,25 @@ public class Main_TeleOp extends LinearOpMode {
             craneServo = hardwareMap.crservo.get("craneServo");
             collectLeft = hardwareMap.dcMotor.get("collectLeft");
             collectRight = hardwareMap.dcMotor.get("collectRight");
+            collectServo = hardwareMap.crservo.get("collectServo");
 
             //////////////////////////////////////////////////////////////////////////////
 
-            stoneArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-            liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            stoneArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             collectRight.setDirection(DcMotorSimple.Direction.FORWARD);
             collectLeft.setDirection(DcMotorSimple.Direction.REVERSE);
             /////////////////////////////////////////////////////////////////////////////
 
-            stoneArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            stoneArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+
+            stoneArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            stoneArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
     }
@@ -174,12 +191,12 @@ public class Main_TeleOp extends LinearOpMode {
             }
 
             if(gamepad2.dpad_up) {
-                stoneArmMotor.setPower(stoneArmPower);
-                liftMotor.setPower(stoneArmPower);
+                stoneArmMotor.setPower(-1);
+                liftMotor.setPower(-1);
             }
             else if(gamepad2.dpad_down) {
-                stoneArmMotor.setPower(-stoneArmPower);
-                liftMotor.setPower(-stoneArmPower);
+                stoneArmMotor.setPower(1);
+                liftMotor.setPower(1);
             }
             else {
                 stoneArmMotor.setPower(0);
@@ -199,23 +216,31 @@ public class Main_TeleOp extends LinearOpMode {
                 sleep(10);
             }
         }
+
         public void craneMovement(){
             if(gamepad2.dpad_right)
-                craneServo.setPower(stoneArmPower);
-            else
-                if(gamepad2.dpad_left)
-                    craneServo.setPower(-stoneArmPower);
+                craneServo.setPower(1);
+            else if(gamepad2.dpad_left)
+                    craneServo.setPower(-1);
+            else craneServo.setPower(0);
         }
+
         public void collector(){
             if(gamepad2.x){
-                collectLeft.setPower(0.8);
-                collectRight.setPower(0.8);
+                collectLeft.setPower(0.3);
+                collectRight.setPower(0.3);
+                collectServo.setPower(-1);
             }
-            else
-                if(gamepad2.b){
-                    collectRight.setPower(-0.8);
-                    collectLeft.setPower(-0.8 );
+            else if(gamepad2.b){
+                    collectRight.setPower(-0.3);
+                    collectLeft.setPower(-0.3);
+                    collectServo.setPower(1);
                 }
+            else {
+                collectRight.setPower(0);
+                collectLeft.setPower(0);
+                collectServo.setPower(0);
+            }
         }
     }
 

@@ -3,11 +3,14 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+@Disabled
 @Autonomous
 
 public class Main_AutonomousOp extends LinearOpMode {
@@ -16,6 +19,8 @@ public class Main_AutonomousOp extends LinearOpMode {
     private DcMotor frontLeftMotor;
     private DcMotor backRightMotor;
     private DcMotor backLeftMotor;
+
+    private Servo stoneGrabServo;
 
     BNO055IMU imu;
     Init init = new Init();
@@ -30,6 +35,7 @@ public class Main_AutonomousOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         init.wheels();
+        stoneGrabServo = hardwareMap.servo.get("stoneGrabServo");
 
         while(!opModeIsActive() && !isStopRequested()) {
             telemetry.addData("Waiting for ", "start.");
@@ -38,11 +44,9 @@ public class Main_AutonomousOp extends LinearOpMode {
 
         if(opModeIsActive()){
 
-            motors.forward(0.5, 800);
+            stoneGrabServo.setPosition(0.9);
+            motors.forward(0.5, 1000);
 
-            motors.left(0.3, 1500);
-
-            motors.forward(0.5, 2000);
         }
 
     }
@@ -73,7 +77,7 @@ public class Main_AutonomousOp extends LinearOpMode {
             backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
+        /**
         public void imu(){
 
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -85,7 +89,7 @@ public class Main_AutonomousOp extends LinearOpMode {
             parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
             imu.initialize(parameters);
-        }
+        } */
     }
     class Motors {
 
@@ -110,35 +114,40 @@ public class Main_AutonomousOp extends LinearOpMode {
 
             sleep(200);
         }
-        public void forward (double power, double target) {
+        public void forward (double power, long target) {
             frontRightMotor.setPower(power);
             frontLeftMotor.setPower(power);
             backRightMotor.setPower(power);
             backLeftMotor.setPower(power);
 
-            while(Math.abs(frontRightMotor.getCurrentPosition()) <= target && opModeIsActive()){
-                showEncoders();
-            }
+            sleep(target);
             stop();
         }
-        public void left (double power, double target){
-            frontLeftMotor.setPower(-power);
-            frontRightMotor.setPower(power);
-            backLeftMotor.setPower(-power);
-            backRightMotor.setPower(power);
-            while(Math.abs(frontRightMotor.getCurrentPosition()) <= target && opModeIsActive()){
-                showEncoders();
-            }
-            stop();
-        }
-        public void right (double power, double target){
-            frontLeftMotor.setPower(power);
-            frontRightMotor.setPower(-power);
-            backLeftMotor.setPower(power);
-            backRightMotor.setPower(-power);
+        public void left (double power) {
 
-            while(Math.abs(frontRightMotor.getCurrentPosition()) <= target && opModeIsActive()){
-                showEncoders();
+            double initialGyro = imu.getPosition().z;
+            double currentGyro = imu.getPosition().z;
+
+            while(Math.abs(currentGyro - initialGyro) <= 88) {
+                frontLeftMotor.setPower(-power);
+                frontRightMotor.setPower(power);
+                backLeftMotor.setPower(-power);
+                backRightMotor.setPower(power);
+            }
+            stop();
+        }
+        public void right (double power){
+
+            double initialGyro = imu.getPosition().z;
+            double currentGyro = imu.getPosition().z;
+
+            while(Math.abs(currentGyro - initialGyro) <= 88) {
+                frontLeftMotor.setPower(power);
+                frontRightMotor.setPower(-power);
+                backLeftMotor.setPower(power);
+                backRightMotor.setPower(-power);
+
+                currentGyro = imu.getPosition().z;
             }
             stop();
         }
