@@ -1,11 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.hardware.camera2.CameraDevice;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
@@ -21,7 +28,16 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
+@TeleOp(group = "test", name = "Yeeeee")
+
 public class Logitech_C270_Webcam extends LinearOpMode {
+
+    private DcMotor frontRightMotor;
+    private DcMotor frontLeftMotor;
+    private DcMotor backRightMotor;
+    private DcMotor backLeftMotor;
+
+    private static final double ticksPerCM = 35.1;
 
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     private static final boolean PHONE_IS_PORTRAIT = false;
@@ -55,13 +71,39 @@ public class Logitech_C270_Webcam extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        frontRightMotor = hardwareMap.dcMotor.get("frontRight");
+        frontLeftMotor = hardwareMap.dcMotor.get("frontLeft");
+        backLeftMotor = hardwareMap.dcMotor.get("backLeft");
+        backRightMotor = hardwareMap.dcMotor.get("backRight");
+
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+       // frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       // frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       // backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       // backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+       // frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+       // frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+       // backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+       // backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         int cameraMonitorViewID = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewID);
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = webcamName;
+        parameters.cameraDirection = CAMERA_CHOICE;
+        //parameters.cameraName = webcamName;
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
@@ -69,6 +111,9 @@ public class Logitech_C270_Webcam extends LinearOpMode {
 
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
+        //VuforiaTrackable.Listener stoneListener;
+        //stoneTarget.setListener(stoneListener);
+
         VuforiaTrackable blueRearBridge = targetsSkyStone.get(1);
         blueRearBridge.setName("Blue Rear Bridge");
         VuforiaTrackable redRearBridge = targetsSkyStone.get(2);
@@ -215,22 +260,76 @@ public class Logitech_C270_Webcam extends LinearOpMode {
 
         targetsSkyStone.activate();
 
+        int i=0,j=0;
+
+
+
+        while (!opModeIsActive() && !isStopRequested()){
+            telemetry.addData("Waiting for ", "start.");
+            cameraDetection(allTrackables);
+        }
+
         while(!isStopRequested()){
 
-            targetVisible = false;
-            for(VuforiaTrackable trackable : allTrackables){
-                if(((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-                    telemetry.addData("Visible Target", trackable.getName());
-                    targetVisible = true;
+            while(!targetVisible){
+                new Movement().horizontal(-0.3);
+                cameraDetection(allTrackables);
+            }
+            new Movement().stop();
+            if(i==1) {
+                cameraDetection(allTrackables);
+                sleep(300);
+                if (lastLocation.getTranslation().get(1) >= -2.3)
+                    new Movement().horizontal(0.25);
+                else
+                    new Movement().stop();
+            }
+        }
+    }
 
-                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
-                    if (robotLocationTransform != null) {
-                        lastLocation = robotLocationTransform;
-                    }
-                    break;
-                }
+    class Movement{
+
+        public void stop(){
+            frontLeftMotor.setPower(0);
+            frontRightMotor.setPower(0);
+            backLeftMotor.setPower(0);
+            backRightMotor.setPower(0);
+        }
+        public void horizontal(double power){
+            frontLeftMotor.setPower(power);
+            frontRightMotor.setPower(-power);
+            backLeftMotor.setPower(-power);
+            backRightMotor.setPower(power);
+        }
+    }
+
+    public void cameraDetection(List<VuforiaTrackable> allTrackables){
+        targetVisible = false;
+
+        if(((VuforiaTrackableDefaultListener)allTrackables.get(0).getListener()).isVisible()) {
+            telemetry.addData("Visible Target", allTrackables.get(0).getName());
+            targetVisible = true;
+
+            OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) allTrackables.get(0).getListener()).getUpdatedRobotLocation();
+            if (robotLocationTransform != null) {
+                lastLocation = robotLocationTransform;
             }
         }
 
+      /*  // Provide feedback as to where the robot is located (if we know).
+        if (targetVisible) {
+            // express position (translation) of robot in inches.
+            VectorF translation = lastLocation.getTranslation();
+
+            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+            // express the rotation of the robot in degrees.
+            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+            telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+            telemetry.addData("do you see? ", targetVisible );
+        }
+
+        telemetry.update(); */
     }
 }
