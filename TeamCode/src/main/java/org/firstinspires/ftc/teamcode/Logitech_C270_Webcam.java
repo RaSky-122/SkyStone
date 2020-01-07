@@ -96,14 +96,14 @@ public class Logitech_C270_Webcam extends LinearOpMode {
        // backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
        // backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        //webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         int cameraMonitorViewID = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewID);
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = CAMERA_CHOICE;
-        //parameters.cameraName = webcamName;
+        //parameters.cameraDirection = CAMERA_CHOICE;
+        parameters.cameraName = webcamName;
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
@@ -307,7 +307,7 @@ public class Logitech_C270_Webcam extends LinearOpMode {
         targetVisible = false;
 
         if(((VuforiaTrackableDefaultListener)allTrackables.get(0).getListener()).isVisible()) {
-            telemetry.addData("Visible Target", allTrackables.get(0).getName());
+            //telemetry.addData("Visible Target", allTrackables.get(0).getName());
             targetVisible = true;
 
             OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) allTrackables.get(0).getListener()).getUpdatedRobotLocation();
@@ -316,7 +316,7 @@ public class Logitech_C270_Webcam extends LinearOpMode {
             }
         }
 
-      /*  // Provide feedback as to where the robot is located (if we know).
+       // Provide feedback as to where the robot is located (if we know).
         if (targetVisible) {
             // express position (translation) of robot in inches.
             VectorF translation = lastLocation.getTranslation();
@@ -330,6 +330,6 @@ public class Logitech_C270_Webcam extends LinearOpMode {
             telemetry.addData("do you see? ", targetVisible );
         }
 
-        telemetry.update(); */
+        telemetry.update();
     }
 }
