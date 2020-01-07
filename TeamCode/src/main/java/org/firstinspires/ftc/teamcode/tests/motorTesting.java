@@ -27,9 +27,11 @@ public class motorTesting extends LinearOpMode {
         while(opModeIsActive()){
             cevreitu.movement();
 
+            telemetry.addData("Net Power: ", power);
             telemetry.addData("Motor1 Power: ", Ion.getPower());
             telemetry.addData("Motor2 Power: ", Maria.getPower());
-            //telemetry.addData("Motor Position: ", Ion.getCurrentPosition());
+            telemetry.addData("Motor1 Position: ", Ion.getCurrentPosition());
+            telemetry.addData("Motor2 Position: ", Maria.getCurrentPosition());
             telemetry.update();
         }
     }
@@ -45,8 +47,11 @@ public class motorTesting extends LinearOpMode {
             Ion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             Maria.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            //Ion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            //Ion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            Ion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            Ion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            Maria.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            Maria.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         public void movement() {
