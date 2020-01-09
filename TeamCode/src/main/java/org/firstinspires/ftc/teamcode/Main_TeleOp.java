@@ -181,6 +181,7 @@ public class Main_TeleOp extends LinearOpMode {
 
         public void stoneGrabber(){
 
+            double liftPosition = (stoneArmMotor.getCurrentPosition() + liftMotor.getCurrentPosition())/2;
             if(gamepad2.right_bumper) {
                 stoneArmPower += 0.05;
                 sleep(200);
@@ -194,7 +195,7 @@ public class Main_TeleOp extends LinearOpMode {
                 stoneArmMotor.setPower(-1);
                 liftMotor.setPower(-1);
             }
-            else if(gamepad2.dpad_down) {
+            else if(gamepad2.dpad_down && liftPosition >= 0) {
                 stoneArmMotor.setPower(1);
                 liftMotor.setPower(1);
             }
