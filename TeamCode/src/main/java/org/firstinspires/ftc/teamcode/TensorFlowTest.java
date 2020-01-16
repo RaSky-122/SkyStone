@@ -3,10 +3,12 @@ package org.firstinspires.ftc.teamcode;
 import android.graphics.Camera;
 import android.hardware.camera2.CameraDevice;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -14,9 +16,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+import java.util.Base64;
 import java.util.List;
 
-@TeleOp (name = "Webcam TensorFlow", group = "test")
+
+@Autonomous(name = "WORK IN PROGRESS", group = "test")
 
 public class TensorFlowTest extends LinearOpMode {
 
@@ -24,6 +28,9 @@ public class TensorFlowTest extends LinearOpMode {
     private DcMotor frontLeft;
     private DcMotor backRight;
     private DcMotor backLeft;
+
+    private Servo autoServo1;
+    private Servo autoServo2;
 
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
@@ -55,6 +62,7 @@ public class TensorFlowTest extends LinearOpMode {
         }
 
         new Init().motorInit();
+        new Init().autoServos();
 
         while(!opModeIsActive() && !isStopRequested()) {
             tfodDetector();
@@ -62,18 +70,49 @@ public class TensorFlowTest extends LinearOpMode {
 
         tfodDetector();
 
-        while(opModeIsActive()){
-            while(skyStone1 <= 210 && !isStopRequested()){
+        if(opModeIsActive()){
+
+            new Movement().sideways(-0.3);
+            while((skyStone1 >= 280 || skyStone1 == -100) && !isStopRequested()){
                 tfodDetector();
-                new Movement().sideways(0.5);
             }
+
+            double enc = Math.abs(new Movement().new Encoders().overallWheelEnc());
+
             new Movement().stop();
+
             tfodDetector();
 
-            if(detectSkystone() >= 150 && !isStopRequested()){
-                new Movement().sideways(-0.5);
+            new Movement().sideways(0.3);
+
+            while((skyStone1 <= 280 || skyStone1 == -100) && !isStopRequested()){
+                tfodDetector();
             }
+
+            enc -= Math.abs(new Movement().new Encoders().overallWheelEnc());
+
             new Movement().stop();
+
+            new Movement().front(0.5, 2600);
+
+            new Movement().stop();
+
+            autoServo2.setPosition(1);
+            sleep(300);
+
+            new Movement().front(-0.5, 600);
+
+            new Movement().stop();
+
+            new Movement().sideways(0.5);
+            while(Math.abs(new Movement().new Encoders().overallWheelEnc()) <= Math.abs(enc));
+
+            new Movement().stop();
+
+            telemetry.addData("Encoder: ", enc);
+            telemetry.update();
+
+            while(!isStopRequested());
         }
     }
 
@@ -95,6 +134,16 @@ public class TensorFlowTest extends LinearOpMode {
             backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
             frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
             backRight.setDirection(DcMotorSimple.Direction.FORWARD);
+
+            frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         private void vuforia(){
@@ -113,6 +162,18 @@ public class TensorFlowTest extends LinearOpMode {
             tfodParameters.minimumConfidence = 0.8;
             tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
             tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+        }
+
+        private void autoServos(){
+
+            autoServo1 = hardwareMap.servo.get("autoServo1");
+            autoServo2 = hardwareMap.servo.get("autoServo2");
+
+            autoServo1.setDirection(Servo.Direction.REVERSE);
+            autoServo2.setDirection(Servo.Direction.FORWARD);
+
+            autoServo1.scaleRange(1-0.66, 1);
+            autoServo2.scaleRange(0, 0.66);
         }
     }
 
@@ -138,11 +199,11 @@ public class TensorFlowTest extends LinearOpMode {
             for(Recognition recognition : updatedRecognitions){
                 if(recognition.getLabel().equals(LABEL_SECOND_ELEMENT)){
                     if(skyStone1 == -100)
-                        skyStone1 = recognition.getRight();
-                    else skyStone2 = recognition.getRight();
+                        skyStone1 = recognition.getLeft();
+                    else skyStone2 = recognition.getLeft();
                 }
             }
-            if(skyStone1 < skyStone2){
+            if(skyStone1 > skyStone2 && skyStone2 != -100){
                 float aux = skyStone1;
                 skyStone1 = skyStone2;
                 skyStone2 = aux;
@@ -156,6 +217,50 @@ public class TensorFlowTest extends LinearOpMode {
 
     class Movement{
 
+        Encoders encoders = new Encoders();
+        Correction correction = new Correction();
+
+        class Encoders{
+
+            private void resetWheelEnoders(){
+
+                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
+
+            private double overallWheelEnc(){
+                double average =
+                        frontLeft.getCurrentPosition() + frontRight.getCurrentPosition()
+                                + backLeft.getCurrentPosition() + backRight.getCurrentPosition();
+                return average/4;
+            }
+        }
+
+        class Correction{
+
+            double error2 = 0;
+
+            private double wheel(double leftEnc, double rightEnc){
+
+                double kp = 0;
+                double ki = 0;
+
+                double error = leftEnc - rightEnc;
+                double speedChange = kp*error + ki*(error + error2);
+
+                error2 = error;
+
+                return speedChange;
+            }
+        }
+
         private void sideways(double power){
             frontRight.setPower(power);
             frontLeft.setPower(-power);
@@ -163,11 +268,23 @@ public class TensorFlowTest extends LinearOpMode {
             backLeft.setPower(power);
         }
 
-        private void front(double power){
-            frontRight.setPower(power);
-            frontLeft.setPower(power);
-            backRight.setPower(power);
-            backLeft.setPower(power);
+        private void front(double power, long target){
+
+            if(target < 0)
+                target *= -1;
+
+            while (Math.abs(encoders.overallWheelEnc()) <= Math.abs(target) && !isStopRequested()) {
+
+                double rightEnc = frontRight.getCurrentPosition() + backRight.getCurrentPosition();
+                double leftEnc = frontLeft.getCurrentPosition() + backLeft.getCurrentPosition();
+
+                double speedChange = correction.wheel(leftEnc, rightEnc);
+
+                frontRight.setPower(power + speedChange);
+                frontLeft.setPower(power - speedChange);
+                backRight.setPower(power + speedChange);
+                backLeft.setPower(power - speedChange);
+            }
         }
 
         private void stop(){
@@ -175,6 +292,8 @@ public class TensorFlowTest extends LinearOpMode {
             frontLeft.setPower(0);
             backRight.setPower(0);
             backLeft.setPower(0);
+
+            encoders.resetWheelEnoders();
         }
     }
 }

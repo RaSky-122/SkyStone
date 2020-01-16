@@ -10,9 +10,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Parking Wall", group = "main")
+@Autonomous(name = "Parking Bridge RIGHT", group = "main")
 
-public class Main_AutonomousOp extends LinearOpMode {
+public class HelloFromTheOtherSide extends LinearOpMode {
 
     private DcMotor frontRightMotor;
     private DcMotor frontLeftMotor;
@@ -21,7 +21,6 @@ public class Main_AutonomousOp extends LinearOpMode {
 
     Init init = new Init();
     Motors motors = new Motors();
-
     @Override
     public void runOpMode() throws InterruptedException {
         init.wheels();
@@ -33,7 +32,8 @@ public class Main_AutonomousOp extends LinearOpMode {
 
         if(opModeIsActive()){
 
-            motors.forward(0.5, 1000);
+            motors.forward(0.5, 1450);
+            motors.left(-0.5, 1200);
         }
     }
     class Init {
@@ -65,6 +65,16 @@ public class Main_AutonomousOp extends LinearOpMode {
             frontRightMotor.setPower(power);
             frontLeftMotor.setPower(power);
             backRightMotor.setPower(power);
+            backLeftMotor.setPower(power);
+
+            sleep(target);
+            stop();
+        }
+
+        public void left (double power, long target){
+            frontRightMotor.setPower(power);
+            frontLeftMotor.setPower(-power);
+            backRightMotor.setPower(-power);
             backLeftMotor.setPower(power);
 
             sleep(target);
