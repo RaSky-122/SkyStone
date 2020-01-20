@@ -4,14 +4,18 @@ import android.graphics.Camera;
 import android.hardware.camera2.CameraDevice;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -19,7 +23,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.Base64;
 import java.util.List;
 
-
+@Disabled
 @Autonomous(name = "WORK IN PROGRESS", group = "test")
 
 public class TensorFlowTest extends LinearOpMode {
@@ -31,6 +35,9 @@ public class TensorFlowTest extends LinearOpMode {
 
     private Servo autoServo1;
     private Servo autoServo2;
+
+    private DistanceSensor rightDistance;
+    private DistanceSensor leftDistance;
 
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
@@ -63,6 +70,7 @@ public class TensorFlowTest extends LinearOpMode {
 
         new Init().motorInit();
         new Init().autoServos();
+        new Init().distanceSensors();
 
         while(!opModeIsActive() && !isStopRequested()) {
             tfodDetector();
@@ -77,8 +85,6 @@ public class TensorFlowTest extends LinearOpMode {
                 tfodDetector();
             }
 
-            double enc = Math.abs(new Movement().new Encoders().overallWheelEnc());
-
             new Movement().stop();
 
             tfodDetector();
@@ -89,11 +95,9 @@ public class TensorFlowTest extends LinearOpMode {
                 tfodDetector();
             }
 
-            enc -= Math.abs(new Movement().new Encoders().overallWheelEnc());
-
             new Movement().stop();
-
-            new Movement().front(0.5, 2600);
+            while (rightDistance.getDistance(DistanceUnit.MM) >= 20 || leftDistance.getDistance(DistanceUnit.MM) >= 20)
+                new Movement().front(0.5, 0);
 
             new Movement().stop();
 
@@ -103,14 +107,6 @@ public class TensorFlowTest extends LinearOpMode {
             new Movement().front(-0.5, 600);
 
             new Movement().stop();
-
-            new Movement().sideways(0.5);
-            while(Math.abs(new Movement().new Encoders().overallWheelEnc()) <= Math.abs(enc));
-
-            new Movement().stop();
-
-            telemetry.addData("Encoder: ", enc);
-            telemetry.update();
 
             while(!isStopRequested());
         }
@@ -174,6 +170,11 @@ public class TensorFlowTest extends LinearOpMode {
 
             autoServo1.scaleRange(1-0.66, 1);
             autoServo2.scaleRange(0, 0.66);
+        }
+
+        private void distanceSensors(){
+            leftDistance = hardwareMap.get(DistanceSensor.class, "leftDistance");
+            rightDistance = hardwareMap.get(DistanceSensor.class, "rightDistance");
         }
     }
 
@@ -273,7 +274,7 @@ public class TensorFlowTest extends LinearOpMode {
             if(target < 0)
                 target *= -1;
 
-            while (Math.abs(encoders.overallWheelEnc()) <= Math.abs(target) && !isStopRequested()) {
+            while (((Math.abs(encoders.overallWheelEnc())) <= Math.abs(target) || target == 0) && !isStopRequested()) {
 
                 double rightEnc = frontRight.getCurrentPosition() + backRight.getCurrentPosition();
                 double leftEnc = frontLeft.getCurrentPosition() + backLeft.getCurrentPosition();
