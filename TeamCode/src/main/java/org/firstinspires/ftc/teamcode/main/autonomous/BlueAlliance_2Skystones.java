@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.teamcode.tests.MotorMovement;
 
 import java.util.List;
 
@@ -28,6 +29,9 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
     private DcMotor frontLeft;
     private DcMotor backRight;
     private DcMotor backLeft;
+
+    private Servo positioningServo1;
+    private Servo positioningServo2;
 
     private Servo autoServo1;
     private Servo autoServo2;
@@ -48,7 +52,7 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
     float skyStone1 = -100;
     float skyStone2 = -100;
 
-    int position;
+    int position = -2;
 
     private Camera camera = new Camera();
     private Movement motors = new Movement();
@@ -60,6 +64,8 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
 
         new Init().vuforia();
         new Init().imu();
+        new Init().foundation();
+
         refGyro = (int)imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
 
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
@@ -78,13 +84,21 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
         int encoderSkystone = 0;
 
         while(!opModeIsActive() && !isStopRequested()) {
-            position = camera.skystonePosition();
+            telemetry.addData("Waiting for ", "start.");
+            telemetry.update();
         }
 
         if(opModeIsActive()){
 
-            while(position == -2 && !isStopRequested())
+            motors.front(0.2, 100);
+            motors.stop();
+
+            camera.skystonePosition();
+            sleep(500);
+
+            while(position == -2 && !isStopRequested()) {
                 position = camera.skystonePosition();
+            }
 
             switch (position){
                 case -1:
@@ -106,13 +120,13 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
 
             motors.stop();
 
-            motors.front(0.5, 2750);
+            motors.front(0.5, 2550);
             motors.stop();
             autoServo2.setPosition(1);
 
             sleep(300);
 
-            motors.front(-0.5, 850);
+            motors.front(-0.5, 800);
             motors.stop();
             while(new Movement().new Encoders().overallWheelEnc() <= 4750 + encoderSkystone && !isStopRequested()) {
                 motors.sideways(0.8);
@@ -124,7 +138,7 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
             sleep(200);
             telemetry.update();
 
-            while(new Movement().new Encoders().overallWheelEnc() <= 2200 + encoderSkystone && !isStopRequested()){
+            while(new Movement().new Encoders().overallWheelEnc() <= 2050 + encoderSkystone && !isStopRequested()){
                 motors.sideways(-0.8);
             }
 
@@ -132,24 +146,56 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
 
             motors.stop();
 
-            motors.front(0.5, 850);
+            motors.front(0.5, 800);
             motors.stop();
             autoServo2.setPosition(1);
             sleep(200);
 
-            motors.front(-0.5, 850);
+            motors.front(-0.5, 800);
             motors.stop();
 
-            while(new Movement().new Encoders().overallWheelEnc() <= encoderSkystone && !isStopRequested()) {
+            while(new Movement().new Encoders().overallWheelEnc() <= 1100 + encoderSkystone && !isStopRequested()) {
                 motors.sideways(0.8);
             }
 
             motors.stop();
             autoServo2.setPosition(0);
 
-            while(new Movement().new Encoders().overallWheelEnc() <= 2000 && !isStopRequested()){
+            /**while(new Movement().new Encoders().overallWheelEnc() <= 2000 && !isStopRequested()){
                 motors.sideways(-0.8);
+            }*/
+
+            while(new Movement().new Encoders().overallWheelEnc() <= 2000 && !isStopRequested()) {
+                motors.sideways(0.8);
             }
+            motors.stop();
+
+            motors.front(0.8, 150);
+
+            sleep(200);
+
+            positioningServo1.setPosition(1);
+            positioningServo2.setPosition(1);
+            motors.stop();
+
+            sleep(600);
+
+            motors.front(-0.8, 300);
+            motors.rotate(0.5, 10);
+
+            motors.front(-0.8, 1800);
+            motors.rotate(0.5, 85);
+
+            positioningServo1.setPosition(0);
+            positioningServo2.setPosition(0);
+            motors.stop();
+
+            motors.front(-0.5, 3000);
+
+            /**while(new Movement().new Encoders().overallWheelEnc() <= 4000 && !isStopRequested()) {
+                motors.sideways(-0.8);
+            }*/
+
             motors.stop();
         }
     }
@@ -182,6 +228,18 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+        private void foundation() {
+
+            positioningServo1 = hardwareMap.servo.get("positioningServo1");
+            positioningServo2 = hardwareMap.servo.get("positioningServo2");
+
+            positioningServo1.setDirection(Servo.Direction.FORWARD);
+            positioningServo2.setDirection(Servo.Direction.REVERSE);
+
+            positioningServo1.scaleRange(0.2, 1);
+            positioningServo2.scaleRange(0, 1 - 0.2);
         }
 
         private void imu(){
@@ -365,6 +423,21 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
             }
         }
 
+        private void rotate(double power, int target){
+            int initialGyro = (int)imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
+            int currentGyro = initialGyro;
+
+            while(Math.abs(currentGyro - initialGyro) <= target && !isStopRequested()){
+                frontLeft.setPower(-power);
+                backLeft.setPower(-power);
+                frontRight.setPower(power);
+                backRight.setPower(power);
+
+                currentGyro = (int)imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
+            }
+
+            motors.stop();
+        }
 
         private void sideways(double power) {
 
