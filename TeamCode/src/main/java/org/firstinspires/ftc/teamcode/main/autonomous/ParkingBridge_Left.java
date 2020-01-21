@@ -1,18 +1,13 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.main.autonomous;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Parking Wall", group = "main")
+@Autonomous(name = "Bridge Park LEFT", group = "both")
 
-public class Main_AutonomousOp extends LinearOpMode {
+public class ParkingBridge_Left extends LinearOpMode {
 
     private DcMotor frontRightMotor;
     private DcMotor frontLeftMotor;
@@ -33,7 +28,8 @@ public class Main_AutonomousOp extends LinearOpMode {
 
         if(opModeIsActive()){
 
-            motors.forward(0.5, 1000);
+            motors.forward(0.5, 1450);
+            motors.left(0.5, 1200);
         }
     }
     class Init {
@@ -65,6 +61,16 @@ public class Main_AutonomousOp extends LinearOpMode {
             frontRightMotor.setPower(power);
             frontLeftMotor.setPower(power);
             backRightMotor.setPower(power);
+            backLeftMotor.setPower(power);
+
+            sleep(target);
+            stop();
+        }
+
+        public void left (double power, long target){
+            frontRightMotor.setPower(power);
+            frontLeftMotor.setPower(-power);
+            backRightMotor.setPower(-power);
             backLeftMotor.setPower(power);
 
             sleep(target);

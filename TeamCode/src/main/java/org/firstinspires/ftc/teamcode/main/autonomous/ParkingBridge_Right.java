@@ -1,18 +1,13 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.main.autonomous;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Parking Bridge LEFT", group = "main")
+@Autonomous(name = "Bridge Park RIGHT", group = "both")
 
-public class Main_AutonomousOpHunedoaraBridge extends LinearOpMode {
+public class ParkingBridge_Right extends LinearOpMode {
 
     private DcMotor frontRightMotor;
     private DcMotor frontLeftMotor;
@@ -21,7 +16,6 @@ public class Main_AutonomousOpHunedoaraBridge extends LinearOpMode {
 
     Init init = new Init();
     Motors motors = new Motors();
-
     @Override
     public void runOpMode() throws InterruptedException {
         init.wheels();
@@ -34,7 +28,7 @@ public class Main_AutonomousOpHunedoaraBridge extends LinearOpMode {
         if(opModeIsActive()){
 
             motors.forward(0.5, 1450);
-            motors.left(0.5, 1200);
+            motors.left(-0.5, 1200);
         }
     }
     class Init {

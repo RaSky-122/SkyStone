@@ -1,18 +1,13 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.main.autonomous;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Parking Bridge RIGHT", group = "main")
+@Autonomous(name = "Wall Park BOTH", group = "both")
 
-public class HelloFromTheOtherSide extends LinearOpMode {
+public class ParkingWall extends LinearOpMode {
 
     private DcMotor frontRightMotor;
     private DcMotor frontLeftMotor;
@@ -21,6 +16,7 @@ public class HelloFromTheOtherSide extends LinearOpMode {
 
     Init init = new Init();
     Motors motors = new Motors();
+
     @Override
     public void runOpMode() throws InterruptedException {
         init.wheels();
@@ -32,10 +28,10 @@ public class HelloFromTheOtherSide extends LinearOpMode {
 
         if(opModeIsActive()){
 
-            motors.forward(0.5, 1450);
-            motors.left(-0.5, 1200);
+            motors.forward(0.5, 1000);
         }
     }
+
     class Init {
         public void wheels() {
 
@@ -50,6 +46,7 @@ public class HelloFromTheOtherSide extends LinearOpMode {
             backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         }
     }
+
     class Motors {
 
         public void stop (){
@@ -65,16 +62,6 @@ public class HelloFromTheOtherSide extends LinearOpMode {
             frontRightMotor.setPower(power);
             frontLeftMotor.setPower(power);
             backRightMotor.setPower(power);
-            backLeftMotor.setPower(power);
-
-            sleep(target);
-            stop();
-        }
-
-        public void left (double power, long target){
-            frontRightMotor.setPower(power);
-            frontLeftMotor.setPower(-power);
-            backRightMotor.setPower(-power);
             backLeftMotor.setPower(power);
 
             sleep(target);
