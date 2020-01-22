@@ -12,9 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
-import static android.graphics.ColorSpace.Model.XYZ;
-
-@Autonomous(name = "Foundation RED", group = "1red")
+@Autonomous(name = "Foundation RED ALLIANCE", group = "1red")
 
 public class RedAlliance_Foundation extends LinearOpMode{
 
@@ -48,7 +46,7 @@ public class RedAlliance_Foundation extends LinearOpMode{
 
         if(opModeIsActive()){
 
-            motors.front(0.8, 2400);
+            motors.front(0.8, 2300);
 
             sleep(200);
 
@@ -58,15 +56,15 @@ public class RedAlliance_Foundation extends LinearOpMode{
 
             sleep(1500);
 
-            motors.front(-0.5, 2750);
-            motors.rotate(0.5, 20);
+            motors.front(-0.5, 2600);
+            motors.rotate(-0.5, 15);
 
             positioningServo1.setPosition(0);
             positioningServo2.setPosition(0);
             motors.stop();
 
             while(new Movement().new Encoders().overallWheelEnc() <= 3500 && !isStopRequested()) {
-                motors.sideways(-0.8);
+                motors.sideways(0.8);
             }
 
             motors.stop();
@@ -83,10 +81,10 @@ public class RedAlliance_Foundation extends LinearOpMode{
             frontLeft = hardwareMap.dcMotor.get("frontLeft");
             frontRight = hardwareMap.dcMotor.get("frontRight");
 
-            backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
             frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
             backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -219,7 +217,7 @@ public class RedAlliance_Foundation extends LinearOpMode{
                 currentGyro = (int)imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
             }
 
-            motors.stop();;
+            motors.stop();
         }
 
         private void sideways(double power) {

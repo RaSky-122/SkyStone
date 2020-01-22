@@ -17,13 +17,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.tests.MotorMovement;
 
 import java.util.List;
 
-@Autonomous(name = "Skystones: BLUE ALLIANCE", group = "1blue")
+@Autonomous(name = "Complete: RED ALLIANCE", group = "1red")
 
-public class BlueAlliance_2Skystones extends LinearOpMode {
+public class RedAlliance_Complete extends LinearOpMode {
 
     private DcMotor frontRight;
     private DcMotor frontLeft;
@@ -90,8 +89,9 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
 
         if(opModeIsActive()){
 
-
             motors.front(0.2, 100);
+            positioningServo1.setPosition(0);
+            positioningServo2.setPosition(0);
             motors.stop();
 
             camera.skystonePosition();
@@ -103,17 +103,17 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
 
             switch (position){
                 case -1:
-                    telemetry.addData("right", " right");
+                    telemetry.addData("left", " left");
                     while(Math.abs(new Movement().new Encoders().overallWheelEnc()) <= 750 && !isStopRequested()){
-                        motors.sideways(-0.5);
+                        motors.sideways(0.5);
                     }
                     encoderSkystone = (int)Math.abs(new Movement().new Encoders().overallWheelEnc());
                     break;
                 case 0: telemetry.addData("middle", " middle"); break;
                 case 1:
-                    telemetry.addData("left", " left");
+                    telemetry.addData("right", " right");
                     while(Math.abs(new Movement().new Encoders().overallWheelEnc()) <= 750 && !isStopRequested()){
-                        motors.sideways(0.5);
+                        motors.sideways(-0.5);
                     }
                     encoderSkystone = (int) -Math.abs(new Movement().new Encoders().overallWheelEnc());
                     break;
@@ -123,24 +123,24 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
 
             motors.front(0.5, 2650);
             motors.stop();
-            autoServo2.setPosition(1);
+            autoServo1.setPosition(1);
 
             sleep(300);
 
             motors.front(-0.5, 850);
             motors.stop();
             while(new Movement().new Encoders().overallWheelEnc() <= 4800 + encoderSkystone && !isStopRequested()) {
-                motors.sideways(0.8);
+                motors.sideways(-0.8);
             }
 
             encoderSkystone = (int)new Movement().new Encoders().overallWheelEnc();
             motors.stop();
-            autoServo2.setPosition(0);
+            autoServo1.setPosition(0);
             sleep(200);
             telemetry.update();
 
-            while(new Movement().new Encoders().overallWheelEnc() <= 2000 + encoderSkystone && !isStopRequested()){
-                motors.sideways(-0.8);
+            while(new Movement().new Encoders().overallWheelEnc() <= 2350 + encoderSkystone && !isStopRequested()){
+                motors.sideways(0.8);
             }
 
             encoderSkystone = (int)new Movement().new Encoders().overallWheelEnc();
@@ -149,24 +149,56 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
 
             motors.front(0.5, 850);
             motors.stop();
-            autoServo2.setPosition(1);
+            autoServo1.setPosition(1);
             sleep(200);
 
             motors.front(-0.5, 850);
             motors.stop();
 
             while(new Movement().new Encoders().overallWheelEnc() <= 800 + encoderSkystone && !isStopRequested()) {
-                motors.sideways(0.8);
+                motors.sideways(-0.8);
             }
 
             motors.stop();
-            autoServo2.setPosition(0);
+            autoServo1.setPosition(0);
 
-            while(new Movement().new Encoders().overallWheelEnc() <= 2300 && !isStopRequested()){
+            /**while(new Movement().new Encoders().overallWheelEnc() <= 2000 && !isStopRequested()){
+             motors.sideways(-0.8);
+             }*/
+
+            while(new Movement().new Encoders().overallWheelEnc() <= 2300 && !isStopRequested()) {
                 motors.sideways(-0.8);
             }
             motors.stop();
 
+            motors.front(0.8, 350);
+            motors.stop();
+
+            sleep(200);
+
+            positioningServo2.setPosition(1);
+            positioningServo1.setPosition(1);
+            sleep(1500);
+
+            motors.stop();
+
+            motors.front(-0.8, 300);
+            motors.rotate(-0.5, 5);
+
+            motors.front(-0.8, 1400);
+            motors.rotate(-0.5, 90);
+
+            positioningServo1.setPosition(0);
+            positioningServo2.setPosition(0);
+            motors.stop();
+
+            motors.front(-0.5, 3000);
+
+            /**while(new Movement().new Encoders().overallWheelEnc() <= 4000 && !isStopRequested()) {
+             motors.sideways(-0.8);
+             }*/
+
+            motors.stop();
         }
     }
 
@@ -282,9 +314,9 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
 
                 if(skystone == -1000)
                     return -1;
-                else if(skystone > stone1)
-                    return 0;
                 else if(skystone < stone1)
+                    return 0;
+                else if(skystone > stone1)
                     return 1;
             }
 

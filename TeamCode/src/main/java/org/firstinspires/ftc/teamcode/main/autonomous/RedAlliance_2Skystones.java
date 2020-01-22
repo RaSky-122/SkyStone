@@ -83,6 +83,16 @@ public class RedAlliance_2Skystones extends LinearOpMode {
 
         if(opModeIsActive()){
 
+            motors.front(0.2, 100);
+            motors.stop();
+
+            camera.skystonePosition();
+            sleep(500);
+
+            while(position == -2 && !isStopRequested()) {
+                position = camera.skystonePosition();
+            }
+
             while(position == -2 && !isStopRequested())
                 position = camera.skystonePosition();
 
@@ -106,7 +116,7 @@ public class RedAlliance_2Skystones extends LinearOpMode {
 
             motors.stop();
 
-            motors.front(0.5, 2750);
+            motors.front(0.5, 2650);
             motors.stop();
             autoServo1.setPosition(1);
 
@@ -114,7 +124,7 @@ public class RedAlliance_2Skystones extends LinearOpMode {
 
             motors.front(-0.5, 850);
             motors.stop();
-            while(new Movement().new Encoders().overallWheelEnc() <= 4750 + encoderSkystone && !isStopRequested()) {
+            while(new Movement().new Encoders().overallWheelEnc() <= 4800 + encoderSkystone && !isStopRequested()) {
                 motors.sideways(-0.8);
             }
 
@@ -124,7 +134,7 @@ public class RedAlliance_2Skystones extends LinearOpMode {
             sleep(200);
             telemetry.update();
 
-            while(new Movement().new Encoders().overallWheelEnc() <= 2200 + encoderSkystone && !isStopRequested()){
+            while(new Movement().new Encoders().overallWheelEnc() <= 2350 + encoderSkystone && !isStopRequested()){
                 motors.sideways(0.8);
             }
 
@@ -140,14 +150,14 @@ public class RedAlliance_2Skystones extends LinearOpMode {
             motors.front(-0.5, 850);
             motors.stop();
 
-            while(new Movement().new Encoders().overallWheelEnc() <= encoderSkystone && !isStopRequested()) {
+            while(new Movement().new Encoders().overallWheelEnc() <= 800 + encoderSkystone && !isStopRequested()) {
                 motors.sideways(-0.8);
             }
 
             motors.stop();
             autoServo1.setPosition(0);
 
-            while(new Movement().new Encoders().overallWheelEnc() <= 2000 && !isStopRequested()){
+            while(new Movement().new Encoders().overallWheelEnc() <= 2300 && !isStopRequested()){
                 motors.sideways(0.8);
             }
             motors.stop();
