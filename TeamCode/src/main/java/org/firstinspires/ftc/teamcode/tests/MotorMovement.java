@@ -6,8 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@Disabled
-@TeleOp(name = "Driving", group = "test")
+@TeleOp(name = "Wheel Test", group = "test")
 
 public class MotorMovement extends LinearOpMode {
 
@@ -58,17 +57,17 @@ public class MotorMovement extends LinearOpMode {
             backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-            frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         public void wheels() {
-            frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
-            frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor");
-            backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
-            backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
+            frontRightMotor = hardwareMap.dcMotor.get("frontRight");
+            frontLeftMotor = hardwareMap.dcMotor.get("frontLeft");
+            backRightMotor = hardwareMap.dcMotor.get("backRight");
+            backLeftMotor = hardwareMap.dcMotor.get("backLeft");
 
             //stoneArmMotor = hardwareMap.dcMotor.get("stoneArmMotor");
             //////////////////////////////////////////////////////////////////////////////
