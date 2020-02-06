@@ -129,7 +129,7 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
 
             motors.front(-0.5, 850);
             motors.stop();
-            while(new Movement().new Encoders().overallWheelEnc() <= 4800 + encoderSkystone && !isStopRequested()) {
+            while(new Movement().new Encoders().overallWheelEnc() <= 4900 + encoderSkystone && !isStopRequested()) {
                 motors.sideways(0.8);
             }
 
@@ -139,7 +139,7 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
             sleep(200);
             telemetry.update();
 
-            while(new Movement().new Encoders().overallWheelEnc() <= 2000 + encoderSkystone && !isStopRequested()){
+            while(new Movement().new Encoders().overallWheelEnc() <= 2050 + encoderSkystone && !isStopRequested()){
                 motors.sideways(-0.8);
             }
 
@@ -162,9 +162,12 @@ public class BlueAlliance_2Skystones extends LinearOpMode {
             motors.stop();
             autoServo2.setPosition(0);
 
-            while(new Movement().new Encoders().overallWheelEnc() <= 2300 && !isStopRequested()){
+            while(new Movement().new Encoders().overallWheelEnc() <= 1500 && !isStopRequested()){
                 motors.sideways(-0.8);
             }
+            motors.stop();
+
+            motors.front(0.5, 200);
             motors.stop();
 
         }

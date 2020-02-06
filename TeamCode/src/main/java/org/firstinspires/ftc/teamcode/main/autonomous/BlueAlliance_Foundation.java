@@ -58,11 +58,12 @@ public class BlueAlliance_Foundation extends LinearOpMode{
 
             sleep(1500);
 
-            motors.front(-0.5, 2600);
+            motors.front(-0.5, 2650);
             motors.rotate(0.5, 15);
 
             positioningServo1.setPosition(0);
             positioningServo2.setPosition(0);
+            motors.rotate(-0.5, 15);
             motors.stop();
 
             while(new Movement().new Encoders().overallWheelEnc() <= 3500 && !isStopRequested()) {

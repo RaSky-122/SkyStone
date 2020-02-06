@@ -129,7 +129,7 @@ public class RedAlliance_Complete extends LinearOpMode {
 
             motors.front(-0.5, 850);
             motors.stop();
-            while(new Movement().new Encoders().overallWheelEnc() <= 4800 + encoderSkystone && !isStopRequested()) {
+            while(new Movement().new Encoders().overallWheelEnc() <= 4900 + encoderSkystone && !isStopRequested()) {
                 motors.sideways(-0.8);
             }
 
@@ -139,7 +139,7 @@ public class RedAlliance_Complete extends LinearOpMode {
             sleep(200);
             telemetry.update();
 
-            while(new Movement().new Encoders().overallWheelEnc() <= 2350 + encoderSkystone && !isStopRequested()){
+            while(new Movement().new Encoders().overallWheelEnc() <= 2050 + encoderSkystone && !isStopRequested()){
                 motors.sideways(0.8);
             }
 
@@ -171,7 +171,7 @@ public class RedAlliance_Complete extends LinearOpMode {
             }
             motors.stop();
 
-            motors.front(0.8, 350);
+            motors.front(0.8, 500);
             motors.stop();
 
             sleep(200);
@@ -185,7 +185,7 @@ public class RedAlliance_Complete extends LinearOpMode {
             motors.front(-0.8, 300);
             motors.rotate(-0.5, 5);
 
-            motors.front(-0.8, 1400);
+            motors.front(-0.8, 1550);
             motors.rotate(-0.5, 90);
 
             positioningServo1.setPosition(0);

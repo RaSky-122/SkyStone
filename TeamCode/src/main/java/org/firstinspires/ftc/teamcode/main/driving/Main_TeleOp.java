@@ -25,8 +25,13 @@ public class Main_TeleOp extends LinearOpMode {
     private Servo autoServo1;
     private Servo autoServo2;
 
+    private Servo positioningServo1;
+    private Servo positioningServo2;
+
     private Servo gripperServo;
     private CRServo extenderServo;
+
+    private DcMotor parkingMotor;
 
     Init init = new Init();
     Motors motors = new Motors();
@@ -53,11 +58,21 @@ public class Main_TeleOp extends LinearOpMode {
             telemetry.addData("Time button is pressed ", new Motors().timePressed);
             telemetry.update();
 
+            /**
+             * HERE
+             * YOU
+             * HAVE
+             * THE
+             * BLOODY
+             * MAIN BODY OF THE PROGRAM      **/ /** REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE **/
+
             motors.smoothMovement();
             motors.liftMovement();
             motors.autoServo();
             motors.gripperServo();
             motors.extenderServo();
+            motors.foundationServo();
+            motors.parkingMotor();
         }
     }
     class Init {
@@ -68,12 +83,16 @@ public class Main_TeleOp extends LinearOpMode {
             backRightMotor = hardwareMap.dcMotor.get("backRight");
             backLeftMotor = hardwareMap.dcMotor.get("backLeft");
 
+            parkingMotor = hardwareMap.dcMotor.get("parkingMotor");
+
             //////////////////////////////////////////////////////////////////////////////
 
             frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+            parkingMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
             /////////////////////////////////////////////////////////////////////////////
 
@@ -82,12 +101,16 @@ public class Main_TeleOp extends LinearOpMode {
             frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+            parkingMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
             //////////////////////////////////////////////////////////////////////////////
 
             frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            parkingMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
         private void lift(){
@@ -118,16 +141,19 @@ public class Main_TeleOp extends LinearOpMode {
             autoServo1 = hardwareMap.servo.get("autoServo1");
             autoServo2 = hardwareMap.servo.get("autoServo2");
             gripperServo = hardwareMap.servo.get("gripperServo");
+            positioningServo1 = hardwareMap.servo.get("positioningServo1");
+            positioningServo2 = hardwareMap.servo.get("positioningServo2");
 
             gripperServo.setDirection(Servo.Direction.FORWARD);
             autoServo1.setDirection(Servo.Direction.REVERSE);
             autoServo2.setDirection(Servo.Direction.FORWARD);
+            positioningServo1.setDirection(Servo.Direction.FORWARD);
+            positioningServo2.setDirection(Servo.Direction.REVERSE);
 
             autoServo1.scaleRange(1-0.66, 1);
             autoServo2.scaleRange(0, 0.66);
-
-            autoServo1.setPosition(0);
-            autoServo2.setPosition(0);
+            positioningServo1.scaleRange(0.2, 1);
+            positioningServo2.scaleRange(0, 1 - 0.2);
         }
 
         private void crServo(){
@@ -140,7 +166,7 @@ public class Main_TeleOp extends LinearOpMode {
         int viteza = 0;
         double power = 0.8;
         double halfPower = 0.5;
-        double stoneArmPower = 0.5;
+        float foundationServoPosition = 0;
 
         private ElapsedTime timer = new ElapsedTime();
         boolean buttonIsHeld = false;
@@ -228,23 +254,15 @@ public class Main_TeleOp extends LinearOpMode {
 
         private void liftMovement(){
 
-            if(gamepad2.right_bumper){
-                liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-                liftMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                liftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            }
-
-            if(gamepad2.dpad_up && (liftMotor1.getCurrentPosition() <= 19400 || gamepad2.left_bumper)) {
+            if(gamepad2.dpad_up && (liftMotor1.getCurrentPosition() <= 9800 || gamepad2.left_bumper)) {
                 if(liftMotor1.getCurrentPosition()>liftMotor2.getCurrentPosition()){
-                    liftMotor1.setPower(1 - 0.1);
+                    liftMotor1.setPower(1 - 0.05);
                     liftMotor2.setPower(1);
                 }
                 else
                     if(liftMotor2.getCurrentPosition()>liftMotor1.getCurrentPosition()){
                         liftMotor1.setPower(1);
-                        liftMotor2.setPower(1 - 0.1);
+                        liftMotor2.setPower(1 - 0.05);
                     }
                     else{
                         liftMotor1.setPower(1);
@@ -254,13 +272,13 @@ public class Main_TeleOp extends LinearOpMode {
             }
             else if(gamepad2.dpad_down && (liftMotor1.getCurrentPosition() >= 50 || gamepad2.left_bumper)) {
                 if(liftMotor1.getCurrentPosition()<liftMotor2.getCurrentPosition()) {
-                    liftMotor1.setPower(-1 + 0.1);
+                    liftMotor1.setPower(-1 + 0.05);
                     liftMotor2.setPower(-1);
                 }
                 else
                     if(liftMotor2.getCurrentPosition()<liftMotor1.getCurrentPosition()){
                         liftMotor1.setPower(-1);
-                        liftMotor2.setPower(-1 + 0.1);
+                        liftMotor2.setPower(-1 + 0.05);
                     }
             }
             else {
@@ -359,6 +377,37 @@ public class Main_TeleOp extends LinearOpMode {
                 else
                     extenderServo.setPower(0);
 
+        }
+
+        private void foundationServo(){
+            if(gamepad1.right_trigger >= 0.7){
+                if(foundationServoPosition == 0){
+                    positioningServo1.setPosition(1);
+                    positioningServo2.setPosition(1);
+                    foundationServoPosition = 1;
+                    sleep(200);
+                }
+                else
+                if(foundationServoPosition == 1){
+                    positioningServo1.setPosition(0);
+                    positioningServo2.setPosition(0);
+                    foundationServoPosition = 0;
+                    sleep(200);
+                }
+            }
+        }
+
+        private void parkingMotor(){
+            if(gamepad2.right_trigger >= 0.7){
+                parkingMotor.setPower(1);
+            }
+            else
+                if(gamepad2.right_bumper){
+                parkingMotor.setPower(-1);
+            }
+                else {
+                    parkingMotor.setPower(0);
+                }
         }
     }
 
